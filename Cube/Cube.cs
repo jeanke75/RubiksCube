@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace Cube
@@ -61,6 +62,16 @@ namespace Cube
                         RotateY(Rotation.Clockwise, 2);
                     break;
             }
+        }
+
+        /**
+         * Rotate the cube horizontally
+         **/
+        public void Rotate(Rotation rotation)
+        {
+            RotateY(rotation, 0);
+            RotateY(rotation, 1);
+            RotateY(rotation, 2);
         }
 
         /**
@@ -439,7 +450,8 @@ namespace Cube
                     Text = move,
                     Tag = new Move(face, Rotation.Clockwise),
                     UseVisualStyleBackColor = true,
-                    Margin = buttonMargin
+                    Margin = buttonMargin,
+                    TabStop = false
                 };
                 btnCW.Click += new EventHandler(Move_Click);
                 flpButtons.Controls.Add(btnCW);
@@ -452,7 +464,8 @@ namespace Cube
                     Text = move + "\'",
                     Tag = new Move(face, Rotation.CounterClockwise),
                     UseVisualStyleBackColor = true,
-                    Margin = buttonMargin
+                    Margin = buttonMargin,
+                    TabStop = false
                 };
                 btnCCW.Click += new EventHandler(Move_Click);
                 flpButtons.Controls.Add(btnCCW);
@@ -465,7 +478,8 @@ namespace Cube
                 Size = new Size(2 * buttonSize + buttonMargin.Left + buttonMargin.Right, buttonSize),
                 Text = "Reset",
                 UseVisualStyleBackColor = true,
-                Margin = buttonMargin
+                Margin = buttonMargin,
+                TabStop = false
             };
             btnReset.Click += Reset_Click;
             flpButtons.Controls.Add(btnReset);
@@ -477,7 +491,8 @@ namespace Cube
                 Size = new Size(2 * buttonSize + buttonMargin.Left + buttonMargin.Right, buttonSize),
                 Text = "Scramble",
                 UseVisualStyleBackColor = true,
-                Margin = buttonMargin
+                Margin = buttonMargin,
+                TabStop = false
             };
             btnScramble.Click += Scramble_Click;
             flpButtons.Controls.Add(btnScramble);
@@ -527,6 +542,9 @@ namespace Cube
             }
         }
 
+        /**
+         * Keyboard shortcuts
+         **/
         private void Form_KeyDown(object sender, KeyEventArgs e)
         {
             Rotation rotation = (e.Control ? Rotation.CounterClockwise : Rotation.Clockwise);
@@ -536,6 +554,7 @@ namespace Cube
                 case Keys.Escape:
                     Close();
                     break;
+
                 case Keys.F:
                     SpinFace(new Move(CubeFace.Front, rotation));
                     break;
@@ -554,16 +573,29 @@ namespace Cube
                 case Keys.D:
                     SpinFace(new Move(CubeFace.Bottom, rotation));
                     break;
+
+                case Keys.Left:
+                    Rotate(Rotation.Clockwise);
+                    break;
+                case Keys.Right:
+                    Rotate(Rotation.CounterClockwise);
+                    break;
             }
 
             Refresh();
         }
 
+        /**
+         * Button handlers
+         **/
         private void Move_Click(object sender, EventArgs e)
         {
             var btn = sender as Button;
             var move = btn.Tag as Move;
             SpinFace(move);
+
+            // remove the button focus so the arrows can be used for rotating the cube
+            Controls.Find("flpButtons", false).First().Focus();
 
             Refresh();
         }
